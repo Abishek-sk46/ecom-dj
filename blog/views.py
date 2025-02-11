@@ -2,8 +2,10 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from .models import Post, Aboutus
 from django.core.paginator import Paginator
-from .forms import ContactForm, RegisterForm
+from .forms import ContactForm, LoginForm, RegisterForm
 import logging
+from django.contrib import messages
+from django.contrib.auth import authenticate, login as auth_login
 
 def index(request):
     blog_title = "Latest Posts"
@@ -53,7 +55,29 @@ def register(request):
     if request.method == 'POST':
         form = RegisterForm(request.POST)
         if form.is_valid():
-            form.save()  # user data created
-            print("Register Success")
-            return redirect('blog:index')
+            user=form.save(commit=False)
+            user.set_password(form.cleaned_data['password']) # password hashed
+            user.save()
+              # user data created
+            messages.success(request, 'User created successfully')
+            return redirect('blog:login')
     return render(request, 'register.html', {'form': form})
+
+def login(request):
+    form = LoginForm()
+    if request.method == 'POST':
+        form = LoginForm(request.POST)
+        if form.is_valid():
+            username = form.cleaned_data['username']
+            password = form.cleaned_data['password']
+            user = authenticate(username=username, password=password)
+            if user is not None:
+                auth_login(request, user)
+                messages.success(request, 'Login succes')
+                return redirect('blog:dashboard')
+
+    return render(request, 'login.html',{'form':form})
+
+def dashboard(request):
+    blog_title = "My Posts"
+    return render(request, 'dashboard.html' , {'blog_title': blog_title})
