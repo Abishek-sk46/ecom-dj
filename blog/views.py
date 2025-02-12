@@ -2,10 +2,22 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from .models import Post, Aboutus
 from django.core.paginator import Paginator
-from .forms import ContactForm, LoginForm, RegisterForm
+from .forms import ContactForm, ForgotPasswordForm, LoginForm, RegisterForm, ResetPasswordForm
 import logging
 from django.contrib import messages
-from django.contrib.auth import authenticate, login as auth_login
+from django.contrib.auth import authenticate, login as auth_login,logout as auth_logout
+from django.contrib.auth.models import User
+# forgotpassword
+from django.contrib.auth.tokens import default_token_generator
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.encoding import force_bytes
+from django.contrib.sites.shortcuts import get_current_site
+from django.template.loader import render_to_string
+
+# send email
+from django.core.mail import send_mail
+
+
 
 def index(request):
     blog_title = "Latest Posts"
@@ -80,4 +92,68 @@ def login(request):
 
 def dashboard(request):
     blog_title = "My Posts"
-    return render(request, 'dashboard.html' , {'blog_title': blog_title})
+    # getting user post
+    all_posts=Post.objects.filter(user=request.user)
+    paginator = Paginator(all_posts, 4)
+    page = request.GET.get('page')
+    posts = paginator.get_page(page)
+
+    return render(request, 'dashboard.html' , {'blog_title': blog_title, 'posts':posts,})
+
+def logout(request):
+    auth_logout(request)
+    messages.success(request, 'Logout succes')
+    return redirect('blog:index')
+
+def forgot_password(request):
+    form = ForgotPasswordForm()
+    if request.method == 'POST':
+        form =ForgotPasswordForm(request.POST)
+        if form.is_valid():
+            email = form.cleaned_data['email']
+            user = User.objects.get(email=email)
+            # send email with reset password
+            token = default_token_generator.make_token(user)
+            uid = urlsafe_base64_encode(force_bytes(user.pk))
+            current_site = get_current_site(request)
+            domain = current_site.domain
+            subject = 'Reset Your Password'
+            message = render_to_string('reset_password_email.html', {
+                'domain': domain,
+                'uid': uid,
+                'token': token,
+            })
+
+            send_mail(subject, message, 'noreply@gmail.com', [email])
+            messages.success(request, 'Email has been sent with password reset link')
+
+
+    return render(request,'forgot_password.html', {'form': form})
+
+
+def reset_password(request, uidb64, token):
+    form = ResetPasswordForm()
+    if request.method == 'POST':
+        form =ResetPasswordForm(request.POST)
+        if form.is_valid():
+            new_password = form.cleaned_data['new_password']
+            try:
+                uid = urlsafe_base64_decode(uidb64)
+                user = User.objects.get(pk=uid)
+
+            except(TypeError, ValueError, OverflowError, User.DoesNotExist):
+                user = None
+
+            if user is not None and default_token_generator.check_token(user, token):
+                user.set_password(new_password)
+                user.save()
+                messages.success(request, 'Password reset succes')
+                return redirect('blog:login')
+            else:
+                messages.error(request, 'Invalid Link')
+                return redirect('blog:login')
+    return render(request, 'reset_password.html')
+
+
+def new_post(request):
+    return render(request,'new_post.html')

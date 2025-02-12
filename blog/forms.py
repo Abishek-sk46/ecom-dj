@@ -40,27 +40,27 @@ class LoginForm(forms.Form):
             if user is None:
                 raise forms.ValidationError("Invalid username or password")
 
-# class ForgotPasswordForm(forms.Form):
-#     email = forms.EmailField(label='Email', max_length=254, required=True)
+class ForgotPasswordForm(forms.Form):
+    email = forms.EmailField(label='Email', max_length=254, required=True)
 
-#     def clean(self):
-#         cleaned_data = super().clean()
-#         email = cleaned_data.get('email')
+    def clean(self):
+        cleaned_data = super().clean()
+        email = cleaned_data.get('email')
 
-#         if not User.objects.filter(email=email).exists():
-#             raise forms.ValidationError("No User Registered with this email.")
+        if not User.objects.filter(email=email).exists():
+            raise forms.ValidationError("No User Registered with this email.")
         
-# class ResetPasswordForm(forms.Form):
-#     new_password = forms.CharField(label='New Password', min_length=8)
-#     confirm_password = forms.CharField(label='Confirm Password', min_length=8)
+class ResetPasswordForm(forms.Form):
+    new_password = forms.CharField(label='New Password', min_length=8)
+    confirm_password = forms.CharField(label='Confirm Password', min_length=8)
 
-#     def clean(self):
-#         cleaned_data = super().clean()
-#         new_password = cleaned_data.get("new_password")
-#         confirm_password = cleaned_data.get("confirm_password")
+    def clean(self):
+        cleaned_data = super().clean()
+        new_password = cleaned_data.get("new_password")
+        confirm_password = cleaned_data.get("confirm_password")
 
-#         if new_password and confirm_password and new_password != confirm_password:
-#             raise forms.ValidationError("Passwords do not match.")
+        if new_password and confirm_password and new_password != confirm_password:
+            raise forms.ValidationError("Passwords do not match.")
 
 # class PostForm(forms.ModelForm):
     # title = forms.CharField(label='Title', max_length=200, required=True)

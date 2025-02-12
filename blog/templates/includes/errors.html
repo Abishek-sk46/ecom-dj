@@ -1,3 +1,4 @@
+ <div class="d-flex flex-column">
  <!-- Error messages -->
  {% for field in form  %}
  {% if field.errors %}
@@ -20,10 +21,15 @@
 </div>
 {% endfor %}
 
-<!--Succes message-->
+<!-- Success message -->
 {% if messages %}
-{% for message in messages  %}
-<div class="alert alert-success">
-{{message}}
-</div>
-{% endfor %}{% endif %}
+    {% for message in messages %}
+        <div class="alert 
+            {% if message.tags == 'success' %}alert-success
+            {% else %}alert-danger
+            {% endif %} 
+            alert-dismissible">
+            {{ message }}
+        </div>
+    {% endfor %}
+{% endif %}

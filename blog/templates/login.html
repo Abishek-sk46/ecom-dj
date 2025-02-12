@@ -7,8 +7,8 @@
             <div class="col-4">
                 <h3>Login</h3>
                 <div class="">
-                    {% include "includes/error.html" %}
-                    
+                    {% include "includes/errors.html" %}
+                 
                     <div class="col-12">
                         <span class="fw-bold"></span>
                         <span class="text-danger"></span>
@@ -19,13 +19,7 @@
                     <span class="text-danger"></span>
                 </div>
     
-                <div class="container mt-3">
-                    <div class="d-flex justify-content-center">
-                        <div class="alert alert-success alert-dismissible fade show" role="alert"> 
-                            Message <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                        </div>
-                    </div>
-                </div>
+
         
                 <div class="my-3">
                     <form method="post">
@@ -41,7 +35,7 @@
                         </div>
                        
                         <div class="my-3 d-flex justify-content-between">
-                            <a href="/password_reset">Forgot Password</a>
+                            <a href="{% url "blog:forgot_password" %}">Forgot Password</a>
                             <button type="submit" class="btn btn-primary">Login</button>
                         </div>
                     </form>
