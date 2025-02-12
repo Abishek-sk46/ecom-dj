@@ -2,7 +2,7 @@
  <!-- Error messages -->
  {% for field in form  %}
  {% if field.errors %}
-     <div class="col-12">
+     <div class="col-12 alert alert-danger">
          <span class="fw-bold"> {{field.label_tag}} </span>
          {% for error in field.errors %}
          <span class="text-danger"> {{error}} </span>

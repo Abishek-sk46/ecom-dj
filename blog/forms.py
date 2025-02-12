@@ -62,39 +62,39 @@ class ResetPasswordForm(forms.Form):
         if new_password and confirm_password and new_password != confirm_password:
             raise forms.ValidationError("Passwords do not match.")
 
-# class PostForm(forms.ModelForm):
-    # title = forms.CharField(label='Title', max_length=200, required=True)
-    # content = forms.CharField(label='Content', required=True)
-    # category =  forms.ModelChoiceField(label='Category', required=True, queryset=Category.objects.all())
-    # img_url = forms.ImageField(label='Image', required=False)
+class PostForm(forms.ModelForm):
+    title = forms.CharField(label='Title', max_length=200, required=True)
+    content = forms.CharField(label='Content', required=True)
+    category =  forms.ModelChoiceField(label='Category', required=True, queryset=Category.objects.all())
+    img_url = forms.ImageField(label='Image', required=False)
 
-    # class Meta:
-    #     model = Post
-    #     fields = ['title', 'content', 'category', 'img_url']
+    class Meta:
+        model = Post
+        fields = ['title', 'content', 'category', 'img_url']
 
-    # def clean(self):
-    #     cleaned_data = super().clean()
-    #     title = cleaned_data.get('title')
-    #     content = cleaned_data.get('content')
+    def clean(self):
+        cleaned_data = super().clean()
+        title = cleaned_data.get('title')
+        content = cleaned_data.get('content')
 
-    #     #custom validation
-    #     if title and len(title) < 5:
-    #         raise forms.ValidationError('Title must be at least 5 Characters long.')
+        #custom validation
+        if title and len(title) < 5:
+            raise forms.ValidationError('Title must be at least 5 Characters long.')
         
-    #     if content and len(content) < 10:
-    #         raise forms.ValidationError('Content must be at least 10 Characters long.')
+        if content and len(content) < 10:
+            raise forms.ValidationError('Content must be at least 10 Characters long.')
     
-    # def save(self, commit = ...):
+    def save(self, commit = ...):
 
-    #     post =  super().save(commit)
-    #     cleaned_data = super().clean()
+        post =  super().save(commit)
+        cleaned_data = super().clean()
 
-    #     if cleaned_data.get('img_url'):
-    #         post.img_url = cleaned_data.get('img_url')
-    #     else:
-    #         img_url = "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ac/No_image_available.svg/600px-No_image_available.svg.png"
-    #         post.img_url = img_url
+        if cleaned_data.get('img_url'):
+            post.img_url = cleaned_data.get('img_url')
+        else:
+            img_url = "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ac/No_image_available.svg/600px-No_image_available.svg.png"
+            post.img_url = img_url
 
-    #     if commit:
-    #         post.save()
-    #     return post
+        if commit:
+            post.save()
+        return post

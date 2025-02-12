@@ -1,8 +1,8 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
-from .models import Post, Aboutus
+from .models import Category, Post, Aboutus
 from django.core.paginator import Paginator
-from .forms import ContactForm, ForgotPasswordForm, LoginForm, RegisterForm, ResetPasswordForm
+from .forms import ContactForm, ForgotPasswordForm, LoginForm, PostForm, RegisterForm, ResetPasswordForm
 import logging
 from django.contrib import messages
 from django.contrib.auth import authenticate, login as auth_login,logout as auth_logout
@@ -156,4 +156,14 @@ def reset_password(request, uidb64, token):
 
 
 def new_post(request):
-    return render(request,'new_post.html')
+    form=PostForm()
+    categories= Category.objects.all()
+    if request.method == 'POST':
+        form=PostForm(request.POST, request.FILES)
+        if form.is_valid():
+            post = form.save(commit=False)
+            post.user = request.user
+            post.save()
+            return redirect('blog:dashboard')
+            
+    return render(request,'new_post.html',{'categories':categories , 'form':form})
