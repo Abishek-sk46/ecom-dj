@@ -18,6 +18,7 @@ class Post(models.Model):
     slug = models.SlugField(null=False, unique=True)
     category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='posts')
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
+    is_published = models.BooleanField(default=False)
     
 
     def save(self, *args, **kwargs):
@@ -32,5 +33,5 @@ class Post(models.Model):
     def __str__(self):
         return self.title
 
-class Aboutus(models.Model):
+class AboutUs(models.Model):
     content = models.TextField()

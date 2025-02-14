@@ -1,6 +1,6 @@
-from django.shortcuts import render, redirect
-from django.http import HttpResponse
-from .models import Category, Post, Aboutus
+from django.shortcuts import get_object_or_404, render, redirect
+from django.http import Http404, HttpResponse
+from .models import Category, Post, AboutUs
 from django.core.paginator import Paginator
 from .forms import ContactForm, ForgotPasswordForm, LoginForm, PostForm, RegisterForm, ResetPasswordForm
 import logging
@@ -17,6 +17,9 @@ from django.template.loader import render_to_string
 # send email
 from django.core.mail import send_mail
 
+from django.contrib.auth.decorators import login_required, permission_required
+from django.contrib.auth.models import Group
+
 
 
 def index(request):
@@ -28,9 +31,23 @@ def index(request):
     return render(request, "index.html", {'blog_title': blog_title, 'posts': posts})
 
 def detail(request, slug):
-    post = Post.objects.get(slug=slug)
-    related_posts = Post.objects.filter(category=post.category).exclude(slug=slug)
-    return render(request, "detail.html", {'post': post, 'related_posts': related_posts})
+    
+    if request.user and not request.user.has_perm('blog.view_post'):
+        messages.error(request, 'You have no permission to view any posts')
+        return redirect('blog:index')
+    # static data 
+    # post = next((item for item in posts if item['id'] == int(post_id)), None)
+    try:
+        # getting data from model by post id
+        post = Post.objects.get(slug=slug)
+        related_posts  = Post.objects.filter(category = post.category).exclude(pk=post.id)
+
+    except Post.DoesNotExist:
+        raise Http404("Post Does not Exist!")
+
+    # logger = logging.getLogger("TESTING")
+    # logger.debug(f'post variable is {post}')=
+    return render(request,'detail.html', {'post': post, 'related_posts':related_posts})
 
 def old_url(request):
     return redirect('new_url')
@@ -55,7 +72,7 @@ def contact(request):
     return render(request, "contact.html")
 
 def about(request):
-    content = Aboutus.objects.first()
+    content = AboutUs.objects.first()
     if content is None or not content.content:
         content = "Default content goes here."
     else:
@@ -167,3 +184,36 @@ def new_post(request):
             return redirect('blog:dashboard')
             
     return render(request,'new_post.html',{'categories':categories , 'form':form})
+
+@login_required
+@permission_required('blog.change_post', raise_exception=True)
+def edit_post(request, post_id):
+    categories = Category.objects.all()
+    post = get_object_or_404(Post, id=post_id)
+    form = PostForm()
+    if request.method == "POST":
+        #form
+        form = PostForm(request.POST, request.FILES, instance=post)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Post Updated Succesfully!')
+            return redirect('blog:dashboard')
+
+    return render(request,'blog/edit_post.html', {'categories': categories, 'post': post, 'form': form})
+
+@login_required
+@permission_required('blog.delete_post', raise_exception=True)
+def delete_post(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
+    post.delete()
+    messages.success(request, 'Post Deleted Succesfully!')
+    return redirect('blog:dashboard')
+
+@login_required
+@permission_required('blog.can_publish', raise_exception=True)
+def publish_post(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
+    post.is_published = True
+    post.save()
+    messages.success(request, 'Post Published Succesfully!')
+    return redirect('blog:dashboard')

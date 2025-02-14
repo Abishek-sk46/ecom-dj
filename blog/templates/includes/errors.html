@@ -2,7 +2,7 @@
  <!-- Error messages -->
  {% for field in form  %}
  {% if field.errors %}
-     <div class="col-12 alert alert-danger">
+     <div class="col-12 alert alert-danger alert-dismissible">
          <span class="fw-bold"> {{field.label_tag}} </span>
          {% for error in field.errors %}
          <span class="text-danger"> {{error}} </span>
@@ -15,7 +15,7 @@
   {% comment %} Non field errors {% endcomment %}
 
 {% for error in form.non_field_errors %}
-<div class="alert alert-danger">
+<div class="alert alert-danger alert-dismissible">
 <span class="text-danger">{{error}}</span>
 </div>
 </div>

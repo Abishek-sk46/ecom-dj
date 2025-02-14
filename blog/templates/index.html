@@ -34,7 +34,7 @@
             <div class="col-md-4">
               <img
                 style="height: 300, width: 300"
-                src="{{ post.img_url }}"
+                src="{{ post.formatted_img_url }}"
                 class="img-fluid"
                 alt="..."
               />
@@ -83,7 +83,7 @@
             </a>
           </li>
           <li class="page-item">
-            <a class="page-link" href="?page=posts.paginator.num_pages" aria-label="Last">
+            <a class="page-link" href="?page={{posts.paginator.num_pages}}" aria-label="Last">
               <span aria-hidden="true">last &raquo;</span>
             </a>
           </li>
