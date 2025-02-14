@@ -171,7 +171,8 @@ def reset_password(request, uidb64, token):
                 return redirect('blog:login')
     return render(request, 'reset_password.html')
 
-
+@login_required
+@permission_required('blog.add_post', raise_exception=True)
 def new_post(request):
     form=PostForm()
     categories= Category.objects.all()
